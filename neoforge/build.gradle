@@ -1,0 +1,25 @@
+plugins {
+    id 'net.neoforged.moddev' version '1.0.21'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+neoForge {
+    version = rootProject.property('neoforgeVersion')
+}
+
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
+dependencies {
+    shade project(':core')
+}
+
+jar {
+    from { configurations.shade.collect { it.isDirectory() ? it : zipTree(it) } }
+}

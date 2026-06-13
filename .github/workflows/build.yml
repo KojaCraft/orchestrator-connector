@@ -1,0 +1,99 @@
+name: Build connector artifacts
+
+# Builds the orchestrator connector for every platform (Bukkit plugin + Fabric /
+# Forge / NeoForge mods), generates a version tag, and publishes the jars as a
+# GitHub Release with stable, platform-named asset names so the Docker image can
+# pull them via releases/latest/download/. Open-source friendly — only the
+# built-in GITHUB_TOKEN is used.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # create tags + releases
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Both JDKs present so Gradle toolchains pick the right one per module
+      # (Bukkit/core = 8/17, NeoForge = 21).
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.8"
+
+      - name: Build all platform artifacts
+        run: >-
+          gradle --no-daemon --stacktrace
+          :bukkit:shadowJar
+          :fabric:build
+          :forge:build
+          :neoforge:build
+
+      # Collect the runnable jar per module under a stable, platform-named file
+      # so release links are predictable. The shaded/remapped jar is the
+      # largest; sources/dev outputs are filtered out.
+      - name: Collect jars
+        run: |
+          mkdir -p dist
+          pick() {
+            local dir="$1" out="$2" f
+            f=$(ls -S "$dir"/build/libs/*.jar 2>/dev/null \
+              | grep -Ev '(-sources|-dev|-dev-shadow|-slim)\.jar$' | head -n1)
+            if [ -n "$f" ]; then cp -v "$f" "dist/$out"; else echo "::warning::no jar built for $dir"; fi
+          }
+          pick bukkit   koja-orchestrator-connector-bukkit.jar
+          pick fabric   koja-orchestrator-connector-fabric.jar
+          pick forge    koja-orchestrator-connector-forge.jar
+          pick neoforge koja-orchestrator-connector-neoforge.jar
+          ls -l dist
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestrator-connector
+          path: dist/*.jar
+          if-no-files-found: error
+
+      # Derive the release tag: an explicitly pushed v* tag is used verbatim,
+      # otherwise we mint one from the gradle version + run number.
+      - name: Resolve version + tag
+        id: ver
+        if: github.event_name != 'pull_request'
+        run: |
+          V=$(grep -E '^version' gradle.properties | sed -E 's/.*=\s*//' | tr -d ' ')
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v${V}-build.${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Orchestrator Connector ${{ steps.ver.outputs.tag }}
+          files: dist/*.jar
+          generate_release_notes: true
+          make_latest: true

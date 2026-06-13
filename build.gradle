@@ -1,0 +1,25 @@
+// Root configuration shared by every subproject. Platform plugins/mods are
+// applied per-module; here we only set common Java settings.
+subprojects {
+    apply plugin: 'java'
+
+    group = rootProject.property('group')
+    version = rootProject.property('version')
+
+    java {
+        // Java 8 bytecode for the core + Bukkit plugin so they run on the
+        // widest range of servers. The mod modules raise this as their loader
+        // requires (handled in their own build.gradle).
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url = 'https://libraries.minecraft.net/' }
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.neoforged.net/releases/' }
+    }
+}

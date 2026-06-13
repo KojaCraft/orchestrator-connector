@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "kojaorchestrator",
+  "version": "${version}",
+  "name": "KojaCraft Orchestrator Connector",
+  "description": "Registers this server with the KojaCraft orchestrator and reports status.",
+  "authors": ["KojaCraft"],
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": {
+    "server": ["net.kojacoord.connector.fabric.FabricConnector"]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.0",
+    "fabric-api": "*"
+  }
+}

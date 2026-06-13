@@ -1,0 +1,19 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+dependencies {
+    // Compiled against an old API so the single jar loads on every newer
+    // Spigot/Paper/Bukkit server.
+    compileOnly "org.spigotmc:spigot-api:${rootProject.property('spigotApiVersion')}"
+    implementation project(':core')
+}
+
+shadowJar {
+    archiveClassifier = ''
+    archiveBaseName = 'koja-orchestrator-connector-bukkit'
+    // Core already relocates its libs; just bundle everything.
+    configurations = [project.configurations.runtimeClasspath]
+}
+
+build.dependsOn shadowJar

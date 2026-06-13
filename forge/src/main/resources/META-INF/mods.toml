@@ -1,0 +1,26 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "kojaorchestrator"
+version = "${version}"
+displayName = "KojaCraft Orchestrator Connector"
+authors = "KojaCraft"
+description = '''
+Registers this server with the KojaCraft orchestrator and reports status.
+'''
+
+[[dependencies.kojaorchestrator]]
+modId = "forge"
+mandatory = true
+versionRange = "[1,)"
+ordering = "NONE"
+side = "SERVER"
+
+[[dependencies.kojaorchestrator]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1,)"
+ordering = "NONE"
+side = "SERVER"

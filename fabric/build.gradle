@@ -1,0 +1,20 @@
+plugins {
+    id 'fabric-loom' version '1.7-SNAPSHOT'
+}
+
+// Loom needs Java 17+ for modern MC; the produced mod still uses the
+// version-agnostic core (reflective player lookup).
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.property('fabricMcVersion')}"
+    mappings "net.fabricmc:yarn:${rootProject.property('fabricMcVersion')}+build.1:v2"
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.property('fabricLoaderVersion')}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.property('fabricApiVersion')}"
+
+    // Bundle the version-agnostic core into the mod jar.
+    include(implementation(project(':core')))
+}

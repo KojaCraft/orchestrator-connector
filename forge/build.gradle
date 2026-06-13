@@ -1,0 +1,28 @@
+plugins {
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+minecraft {
+    mappings channel: 'official', version: rootProject.property('forgeVersion').toString().split('-')[0]
+}
+
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${rootProject.property('forgeVersion')}"
+    shade project(':core')
+}
+
+// Bundle the version-agnostic core into the mod jar.
+jar {
+    from { configurations.shade.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest { attributes(["Specification-Title": "kojaorchestrator"]) }
+}

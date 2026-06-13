@@ -1,0 +1,18 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+dependencies {
+    implementation 'redis.clients:jedis:5.1.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.yaml:snakeyaml:2.2'
+}
+
+// The core is shaded into each platform jar; relocate to avoid clashing with
+// libraries the host server already ships.
+shadowJar {
+    archiveClassifier = ''
+    relocate 'redis.clients', 'net.kojacoord.connector.lib.jedis'
+    relocate 'com.google.gson', 'net.kojacoord.connector.lib.gson'
+    relocate 'org.yaml.snakeyaml', 'net.kojacoord.connector.lib.snakeyaml'
+}

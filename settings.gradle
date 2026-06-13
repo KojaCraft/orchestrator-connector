@@ -1,0 +1,14 @@
+rootProject.name = "orchestrator-connector"
+
+// Pure-Java, MC-version-agnostic core shared by every platform.
+include("core")
+
+// Platform adapters. Each produces a runnable artifact:
+//   bukkit   -> Spigot/Paper/Bukkit plugin (one jar, all Bukkit versions)
+//   fabric   -> Fabric mod (also loads under Quilt)
+//   forge    -> Forge mod
+//   neoforge -> NeoForge mod
+include("bukkit")
+include("fabric")
+include("forge")
+include("neoforge")

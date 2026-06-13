@@ -1,0 +1,9 @@
+name: KojaOrchestratorConnector
+main: net.kojacoord.connector.bukkit.BukkitConnectorPlugin
+version: 1.0.0
+authors: [KojaCraft]
+description: Registers this server with the KojaCraft orchestrator and reports status.
+# Load after worlds so player APIs are ready. api-version is honoured by 1.13+
+# and ignored by older servers, keeping the jar compatible everywhere.
+load: POSTWORLD
+api-version: 1.13
