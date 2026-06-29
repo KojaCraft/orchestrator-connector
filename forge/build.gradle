@@ -23,6 +23,9 @@ dependencies {
 
 // Bundle the version-agnostic core into the mod jar.
 jar {
+    // Shaded libs carry multi-release entries (META-INF/versions/9/module-info.class)
+    // that collide when merged; drop the duplicates.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.shade.collect { it.isDirectory() ? it : zipTree(it) } }
     manifest { attributes(["Specification-Title": "kojaorchestrator"]) }
 }

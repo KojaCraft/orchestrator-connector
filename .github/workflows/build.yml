@@ -41,10 +41,19 @@ jobs:
         with:
           gradle-version: "8.8"
 
-      - name: Build all platform artifacts
+      # The Bukkit plugin is the critical artifact — the orchestrator pulls it
+      # at container start, so its release must never be blocked by a flaky mod
+      # toolchain (ForgeGradle/NeoForge decompile steps, etc.). Build it first
+      # and let it fail the job if it breaks.
+      - name: Build Bukkit plugin (required)
+        run: gradle --no-daemon --stacktrace :bukkit:shadowJar
+
+      # Mod platforms are best-effort: a failure here still releases the Bukkit
+      # jar. Check the step's annotation if a mod jar goes missing from a release.
+      - name: Build mod platforms (best-effort)
+        continue-on-error: true
         run: >-
           gradle --no-daemon --stacktrace
-          :bukkit:shadowJar
           :fabric:build
           :forge:build
           :neoforge:build
