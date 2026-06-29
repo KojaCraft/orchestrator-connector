@@ -23,10 +23,14 @@ public final class ConnectorConfig {
     public final int redisPort;
     public final String redisPassword;
     public final int heartbeatSeconds;
+    /** Routable host address + port this server is reachable on (from the
+     *  orchestrator), so the proxy can register it as a backend. */
+    public final String address;
+    public final int port;
 
     private ConnectorConfig(String serverName, String templateId, UUID serverUuid,
                             String redisHost, int redisPort, String redisPassword,
-                            int heartbeatSeconds) {
+                            int heartbeatSeconds, String address, int port) {
         this.serverName = serverName;
         this.templateId = templateId;
         this.serverUuid = serverUuid;
@@ -34,6 +38,8 @@ public final class ConnectorConfig {
         this.redisPort = redisPort;
         this.redisPassword = redisPassword;
         this.heartbeatSeconds = heartbeatSeconds;
+        this.address = address;
+        this.port = port;
     }
 
     /** @param dataDir the server working directory (where data.yml/game.json live). */
@@ -58,7 +64,13 @@ public final class ConnectorConfig {
 
         int heartbeat = intEnv("HEARTBEAT_SECONDS", 5);
 
-        return new ConnectorConfig(name, template, uuid, redisHost, redisPort, redisPass, heartbeat);
+        // Routable endpoint for proxy backend registration. The orchestrator
+        // passes both as env (SERVER_ADDRESS / PORT); fall back to data.yml.
+        String address = env("SERVER_ADDRESS", str(data.get("address"), ""));
+        int port = intEnv("PORT", intOf(data.get("port"), 0));
+
+        return new ConnectorConfig(name, template, uuid, redisHost, redisPort, redisPass,
+                heartbeat, address, port);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

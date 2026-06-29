@@ -43,6 +43,9 @@ public final class OrchestratorConnector {
     public void onServerStopping() {
         if (!started) return;
         started = false;
+        // Tell the proxy plugin (which registers backends off our status) to
+        // drop this server, then the orchestrator to mark it ended.
+        publishStatusWith("Closing");
         publishUpdate("End");
         bus.close();
     }
@@ -62,11 +65,24 @@ public final class OrchestratorConnector {
 
     private void publishStatus() {
         if (!started) return;
+        publishStatusWith("Open");
+    }
+
+    /** Publish a server_status frame with the given status. Includes the
+     *  routable address+port so the proxy plugin can register this server as a
+     *  backend directly from Redis (no HTTP round-trip). */
+    private void publishStatusWith(String status) {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("server_name", cfg.serverName);
-        p.put("status", "Open");
+        p.put("status", status);
         p.put("player_count", playerCountSafe());
         p.put("max_players", platform.getMaxPlayers());
+        if (cfg.address != null && !cfg.address.isEmpty()) {
+            p.put("address", cfg.address);
+        }
+        if (cfg.port > 0) {
+            p.put("port", cfg.port);
+        }
         bus.publish(Protocol.CHANNEL_SERVER_STATUS, gson.toJson(p));
     }
 
