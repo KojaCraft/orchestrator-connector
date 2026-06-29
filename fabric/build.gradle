@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'fabric-loom' version '1.7.4'
 }
 
 // Loom needs Java 17+ for modern MC; the produced mod still uses the

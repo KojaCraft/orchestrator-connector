@@ -1,3 +1,17 @@
+// Plugins (e.g. fabric-loom) are NOT on the Gradle Plugin Portal. Plugin
+// resolution ignores the `repositories` block in build.gradle (that only
+// affects dependency resolution), so the loom/forge plugin repos must be
+// declared here in pluginManagement.
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://maven.architectury.dev/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.neoforged.net/releases/' }
+    }
+}
+
 rootProject.name = "orchestrator-connector"
 
 // Pure-Java, MC-version-agnostic core shared by every platform.
