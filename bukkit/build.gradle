@@ -4,8 +4,12 @@ plugins {
 
 dependencies {
     // Compiled against an old API so the single jar loads on every newer
-    // Spigot/Paper/Bukkit server.
-    compileOnly "org.spigotmc:spigot-api:${rootProject.property('spigotApiVersion')}"
+    // Spigot/Paper/Bukkit server. Exclude net.md-5:bungeecord-chat — the
+    // 1.8-SNAPSHOT that spigot-api 1.8.8 transitively requires was purged from
+    // Spigot's snapshot repo, and the connector doesn't use the chat API.
+    compileOnly("org.spigotmc:spigot-api:${rootProject.property('spigotApiVersion')}") {
+        exclude group: 'net.md-5', module: 'bungeecord-chat'
+    }
     implementation project(':core')
 }
 
